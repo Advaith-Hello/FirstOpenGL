@@ -34,13 +34,10 @@
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <None Include="orange.frag">
+    <None Include="color.frag">
       <Filter>Shaders</Filter>
     </None>
-    <None Include="vertex.glsl">
-      <Filter>Shaders</Filter>
-    </None>
-    <None Include="purple.frag">
+    <None Include="vertex.vert">
       <Filter>Shaders</Filter>
     </None>
   </ItemGroup>

@@ -141,9 +141,8 @@
     <ClInclude Include="utils.h" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="orange.frag" />
-    <None Include="purple.frag" />
-    <None Include="vertex.glsl" />
+    <None Include="color.frag" />
+    <None Include="vertex.vert" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

@@ -5,16 +5,17 @@
 #include "utils.h"
 
 
-float orangeTriangle[] = {
+float vertices[] = {
 	-0.5f,  0.0f, 0.0f,
 	-0.5f,  0.5f, 0.0f,
 	 0.0f,  0.0f, 0.0f,
-};
-
-float purpleTriangle[] = {
-	 0.0f,  0.0f, 0.0f,
 	 0.5f,  0.0f, 0.0f,
 	 0.5f, -0.5f, 0.0f,
+};
+
+unsigned int indices[] = {
+	0, 1, 2,
+	2, 3, 4,
 };
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height) {
@@ -53,35 +54,30 @@ int main() {
 
 	// Loading shaders
 
-	std::string vertSrc = loadShader("vertex.glsl");
-	std::string fragSrc1 = loadShader("orange.frag");
-	std::string fragSrc2 = loadShader("purple.frag");
+	std::string vertSrc = loadShader("vertex.vert");
+	std::string fragSrc = loadShader("color.frag");
 	
 	const char* vertexShaderSource = vertSrc.c_str();
-	const char* fragmentShaderSources[] = { fragSrc1.c_str(), fragSrc2.c_str() };
+	const char* fragmentShaderSource = fragSrc.c_str();
 
 	// Buffer objects
 
-	unsigned int VAOs[2];
-	unsigned int VBOs[2];
+	unsigned int VAO;
+	unsigned int VBO;
+	unsigned int EBO;
 
-	glGenVertexArrays(2, VAOs);
-	glGenBuffers(2, VBOs);
+	glGenVertexArrays(1, &VAO);
+	glGenBuffers(1, &VBO);
+	glGenBuffers(1, &EBO);
 
-	// Setup orangle triangle
+	// Setup VBO and EBO
 
-	glBindVertexArray(VAOs[0]);
-	glBindBuffer(GL_ARRAY_BUFFER, VBOs[0]);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(orangeTriangle), orangeTriangle, GL_STATIC_DRAW);
+	glBindVertexArray(VAO);
+	glBindBuffer(GL_ARRAY_BUFFER, VBO);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
 
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
-	glEnableVertexAttribArray(0);
-
-	// Setup purple triangle
-
-	glBindVertexArray(VAOs[1]);
-	glBindBuffer(GL_ARRAY_BUFFER, VBOs[1]);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(purpleTriangle), purpleTriangle, GL_STATIC_DRAW);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
 
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
 	glEnableVertexAttribArray(0);
@@ -93,37 +89,25 @@ int main() {
 	glShaderSource(vertexShader, 1, &vertexShaderSource, NULL);
 	glCompileShader(vertexShader);
 
-	// Fragment shaders
+	// Fragment shader
 
-	unsigned int fragmentShaderOrange;
-	fragmentShaderOrange = glCreateShader(GL_FRAGMENT_SHADER);
-	glShaderSource(fragmentShaderOrange, 1, &fragmentShaderSources[0], NULL);
-	glCompileShader(fragmentShaderOrange);
+	unsigned int fragmentShader;
+	fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
+	glShaderSource(fragmentShader, 1, &fragmentShaderSource, NULL);
+	glCompileShader(fragmentShader);
 
-	unsigned int fragmentShaderPurple;
-	fragmentShaderPurple = glCreateShader(GL_FRAGMENT_SHADER);
-	glShaderSource(fragmentShaderPurple, 1, &fragmentShaderSources[1], NULL);
-	glCompileShader(fragmentShaderPurple);
+	// Shader program
 
-	// Shader programs
-
-	unsigned int shaderProgramOrange;
-	shaderProgramOrange = glCreateProgram();
-	glAttachShader(shaderProgramOrange, vertexShader);
-	glAttachShader(shaderProgramOrange, fragmentShaderOrange);
-	glLinkProgram(shaderProgramOrange);
-
-	unsigned int shaderProgramPurple;
-	shaderProgramPurple = glCreateProgram();
-	glAttachShader(shaderProgramPurple, vertexShader);
-	glAttachShader(shaderProgramPurple, fragmentShaderPurple);
-	glLinkProgram(shaderProgramPurple);
+	unsigned int shaderProgram;
+	shaderProgram = glCreateProgram();
+	glAttachShader(shaderProgram, vertexShader);
+	glAttachShader(shaderProgram, fragmentShader);
+	glLinkProgram(shaderProgram);
 
 	// Deleting
 
 	glDeleteShader(vertexShader);
-	glDeleteShader(fragmentShaderOrange);
-	glDeleteShader(fragmentShaderPurple);
+	glDeleteShader(fragmentShader);
 
 	// Render loop
 	while (!glfwWindowShouldClose(window)) {
@@ -134,15 +118,11 @@ int main() {
 		glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT);
 
-		// Display orange triangle
-		glUseProgram(shaderProgramOrange);
-		glBindVertexArray(VAOs[0]);
-		glDrawArrays(GL_TRIANGLES, 0, 3);
-
-		// Display purple triangle
-		glUseProgram(shaderProgramPurple);
-		glBindVertexArray(VAOs[1]);
-		glDrawArrays(GL_TRIANGLES, 0, 3);
+		// Display triangles
+		glUseProgram(shaderProgram);
+		glBindVertexArray(VAO);
+		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
+		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 
 		// GLFW Commands
 		glfwSwapBuffers(window);
