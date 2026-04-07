@@ -6,16 +6,13 @@
 
 
 float vertices[] = {
-	-0.5f,  0.0f, 0.0f,
-	-0.5f,  0.5f, 0.0f,
-	 0.0f,  0.0f, 0.0f,
-	 0.5f,  0.0f, 0.0f,
-	 0.5f, -0.5f, 0.0f,
+	-0.5f, -0.5f, 0.0f,  1.0f, 0.0f, 0.0f,
+	 0.0f,  0.5f, 0.0f,  0.0f, 1.0f, 0.0f,
+	 0.5f, -0.5f, 0.0f,  0.0f, 0.0f, 1.0f,
 };
 
 unsigned int indices[] = {
 	0, 1, 2,
-	2, 3, 4,
 };
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height) {
@@ -79,8 +76,11 @@ int main() {
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
 
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)0);
+	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(3 * sizeof(float)));
+
 	glEnableVertexAttribArray(0);
+	glEnableVertexAttribArray(1);
 
 	// Vertex shader
 
@@ -88,6 +88,7 @@ int main() {
 	vertexShader = glCreateShader(GL_VERTEX_SHADER);
 	glShaderSource(vertexShader, 1, &vertexShaderSource, NULL);
 	glCompileShader(vertexShader);
+	checkShaderError(vertexShader, GL_COMPILE_STATUS);
 
 	// Fragment shader
 
@@ -95,6 +96,7 @@ int main() {
 	fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
 	glShaderSource(fragmentShader, 1, &fragmentShaderSource, NULL);
 	glCompileShader(fragmentShader);
+	checkShaderError(fragmentShader, GL_COMPILE_STATUS);
 
 	// Shader program
 
@@ -103,6 +105,7 @@ int main() {
 	glAttachShader(shaderProgram, vertexShader);
 	glAttachShader(shaderProgram, fragmentShader);
 	glLinkProgram(shaderProgram);
+	checkShaderError(fragmentShader, GL_LINK_STATUS);
 
 	// Deleting
 
